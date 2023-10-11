@@ -2,8 +2,8 @@ import random
 import string
 import time
 import pandas as pd
-from passlib.hash import sha256_crypt
-
+#from passlib.hash import sha256_crypt
+import hashlib
 
 def main():
     t = time.time()
@@ -72,7 +72,11 @@ def generate_rockyou2_dataset(dictionary):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
+            m = hashlib.sha256()
+            m.update(bytes(pwd, 'utf-8'))
+            hashs.append(m.hexdigest())
+			
+			#hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
             
@@ -103,7 +107,10 @@ def generate_rockyou3_dataset(dictionary):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
+            m = hashlib.sha256()
+            m.update(bytes(pwd, 'utf-8'))
+            hashs.append(m.hexdigest())
+            #hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
     df = pd.DataFrame(hashs, columns=["hash"])
@@ -119,7 +126,10 @@ def generate_rockyou4_dataset(dictionary):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
+            m = hashlib.sha256()
+            m.update(bytes(pwd, 'utf-8'))
+            hashs.append(m.hexdigest())
+            #hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
             
@@ -137,8 +147,10 @@ def generate_dataset(len:int, dictionary: str):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
-            
+            #hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
+            m = hashlib.sha256()
+            m.update(bytes(pwd, 'utf-8'))
+            hashs.append(m.hexdigest())
 			
 			#hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
