@@ -1,35 +1,40 @@
 import random
 import string
-import bcrypt
-import crypt
 import time
 import pandas as pd
+from passlib.hash import sha256_crypt
 
-N_PASSWD_DATASET = 100
 
 def main():
     t = time.time()
+    # Generate the 20 random datasets
     run_datasets_on(dictionary=string.ascii_lowercase, name="min")
     run_datasets_on(dictionary=string.ascii_uppercase, name="may")
     run_datasets_on(dictionary=string.digits, name="num")
     run_datasets_on(dictionary=string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation, name="alphanumsym")
+    # Generate the 5 dictionary based datasets. 
     # Import password tables and select them randomly.
     word_list = [line.strip() for line in open('rockyou.txt', encoding='latin-1')]
-    # random rockyou passwords dict passwd #1
+    
+	# random rockyou passwords dict passwd #1
     data_set = generate_dataset(1, word_list)
     data_set.to_csv("passwd_rckyou_plain.csv", header=False, index=False)
-    # random rockyou passwords with modificatios to their case.
+    
+	# random rockyou passwords with modificatios to their case.
     data_set = generate_rockyou2_dataset(word_list)
-    data_set.to_csv("passwd_rckyou_plain.csv", header=False, index=False)
+    data_set.to_csv("passwd_rckyou_cased.csv", header=False, index=False)
+    
     # random rockyou password combined together
     data_set = generate_dataset(2, word_list)
     data_set.to_csv("passwd_rckyou_mashed.csv", header=False, index=False)
+    
     # random rockyou password tuned over
-    data_set = generate_rockyou3(word_list)
-    data_set.to_csv("passwd_rckyou_mashed.csv", header=False, index=False)
-    # random rockyou password changed case and mashed between 1 to 4 words.
+    data_set = generate_rockyou3_dataset(word_list)
+    data_set.to_csv("passwd_rckyou_reverse.csv", header=False, index=False)
+    
+	# random rockyou password changed case and mashed between 1 to 4 words.
     data_set = generate_rockyou4_dataset(word_list)
-    data_set.to_csv("passwd_rckyou_plain.csv", header=False, index=False)
+    data_set.to_csv("passwd_rckyou_multi.csv", header=False, index=False)
     
     print("Finished on :", time.time() - t, " sec")
     
@@ -67,7 +72,7 @@ def generate_rockyou2_dataset(dictionary):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(crypt.crypt(pwd, crypt.METHOD_SHA1))
+            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
             
@@ -75,13 +80,13 @@ def generate_rockyou2_dataset(dictionary):
         
     return df
 
-def generate_rockyou2_passwd():
-    """Change case randomly
-    """
-    word = random.choice(dictionary)
-    for elem, idx in enumerate(word): # for each char in the word, randomly uppercase it if possible.
-        word[idx] = upper(elem) if isalpha(elem) and random.choice([True, False]) else elem
-    return word
+def generate_rockyou2_passwd(dictionary):
+	# Change case randomly
+	word = random.choice(dictionary)
+	word = word.split()
+	for idx, elem  in enumerate(word): # for each char in the word, randomly uppercase it if possible.
+		word[idx] = elem.upper() if elem.isalpha() and random.choice([True, False]) else elem
+	return "".join(word)
 
 
 def generate_rockyou3_passwd(dictionary):
@@ -94,13 +99,15 @@ def generate_rockyou3_dataset(dictionary):
     hashs = []
     hashs_b = []
     while pwd_gemerated < 100:
-        pwd = generate_rockyou3_passwd(len, dictionary)
+        pwd = generate_rockyou3_passwd(dictionary)
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(crypt.crypt(pwd, crypt.METHOD_SHA1))
+            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
+    df = pd.DataFrame(hashs, columns=["hash"])
+    return df
 
 def generate_rockyou4_dataset(dictionary):
     pwd_gemerated = 0
@@ -112,7 +119,7 @@ def generate_rockyou4_dataset(dictionary):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(crypt.crypt(pwd, crypt.METHOD_SHA1))
+            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
             #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
             
@@ -130,8 +137,10 @@ def generate_dataset(len:int, dictionary: str):
         if pwd not in pwds:
             pwds.append(pwd)
             pwd_gemerated += 1
-            hashs.append(crypt.crypt(pwd, crypt.METHOD_SHA1))
-            #hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
+            hashs.append(sha256_crypt.using(rounds=1000).hash(pwd))
+            
+			
+			#hashs_b.append(bcrypt.hashpw(bytes(pwd, 'ascii'), bcrypt.gensalt()))
             #hashs_b.append(crypt.crypt(pwd, crypt.METHOD_MD5))
             
     df = pd.DataFrame(hashs, columns=["hash"])
