@@ -17,3 +17,7 @@ for elem in processed_input:
     secs_list.append(elem - prev)
 print(secs_list)
 print(processed_input)
+
+print(f"Mean: {statistics.mean(secs_list)}")
+print(f"Median: {statistics.median(secs_list)}")
+print(f"Percentage Cracked: {len(secs_list)/100.0 * 100}%")
