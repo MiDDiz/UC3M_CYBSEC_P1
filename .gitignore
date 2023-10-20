@@ -1,3 +1,4 @@
 *.csv
 rockyou.txt
 run/
+.vscode
